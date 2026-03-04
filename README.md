@@ -38,7 +38,7 @@ Even metal plates (Cryptosteel, Billfodl, etc.) only protect against fire and wa
 
 SeedVault encrypts your seed phrase **before** you store it.
 
-The result is an encrypted QR code. You can print it, save it on USB, email it to yourself, or engrave it on metal — without the password, it's unreadable noise.
+The result is an encrypted QR code. You can print it, save it on USB, email it to yourself, or engrave it on metal (order it on seed-vault.io) — without the password, it's unreadable noise.
 
 <p align="center">
   <img src="assets/demo.gif" alt="SeedVault — encrypt a seed phrase in 10 seconds" width="320">
