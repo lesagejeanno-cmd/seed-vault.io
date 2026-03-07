@@ -1,17 +1,18 @@
 <p align="center">
-  <img src="assets/metal.gif" alt="SeedVault encrypted QR code engraved on stainless steel" width="420">
+  <img src="metal.gif" alt="SeedVault encrypted QR code engraved on stainless steel" width="420">
 </p>
 
 <h1 align="center">SeedVault</h1>
 
 <p align="center">
   <strong>Encrypt your crypto seed phrase into a QR code.</strong><br>
-  AES-256-GCM · 100% client-side · Single HTML file · Works offline
+  AES-256-GCM · PBKDF2 600k · 100% client-side · Single HTML file · Works offline
 </p>
 
 <p align="center">
   <a href="https://seed-vault.io">Live App</a> &nbsp;·&nbsp;
   <a href="#security">Security</a> &nbsp;·&nbsp;
+  <a href="#steganography">Steganography</a> &nbsp;·&nbsp;
   <a href="#how-it-works">How it works</a> &nbsp;·&nbsp;
   <a href="https://twitter.com/seed_vaultio">Twitter</a>
 </p>
@@ -71,17 +72,40 @@ Upload your QR code image (or paste the encrypted text), enter your password, an
 
 ## Features
 
-**Encryption** — AES-256-GCM via Web Crypto API. PBKDF2 key derivation with 600,000 iterations. Random salt and IV per encryption.
+**Encryption** — AES-256-GCM via Web Crypto API. PBKDF2 key derivation with 600,000 iterations. Random 16-byte salt and 12-byte IV per encryption.
 
 **Single HTML file** — No build step, no server, no dependencies. Download `index.html`, open in any browser. That's it.
 
 **Works offline** — Disconnect from the internet before encrypting. The tool works identically.
 
-**Steganography** — Hide your encrypted seed phrase inside a normal-looking image. The image looks unchanged to the human eye.
+**Steganography** — Hide your encrypted seed phrase inside a normal-looking image. The image looks unchanged to the human eye. See [Steganography](#steganography) below.
 
 **Camera scanner** — Scan encrypted QR codes directly with your phone camera (HTTPS required) or upload an image.
 
-**Dark/light mode** — Follows your system preference.
+**Dark/light mode** — Follows your system preference automatically.
+
+**BIP39 validation** — Real-time word validation against the official BIP39 wordlist. Invalid words are flagged before encryption.
+
+## Steganography
+
+This is one of SeedVault's most powerful features. Instead of storing your seed phrase as a visible QR code, you can **hide it inside any image**.
+
+```
+Your photo of a sunset
+      ↓
+AES-256-GCM encryption + pixel embedding
+      ↓
+The same photo — looks identical to the human eye
+      ↓
+But contains your encrypted seed phrase in the pixel data
+```
+
+**Why this matters:**
+- A QR code on your desk says "I have crypto" — a photo of your cat says nothing
+- Safe to store on USB drives, cloud storage, or email to yourself
+- Even if someone finds the image, they don't know it contains data
+- Even if they suspect it, the data is AES-256 encrypted
+- Double protection: **invisible** AND **encrypted**
 
 ## How it works
 
@@ -100,9 +124,9 @@ Print · USB · Cloud · Metal
 1. You enter your 12 or 24 words
 2. You choose a password
 3. SeedVault generates a random **salt** (16 bytes) and **IV** (12 bytes)
-4. Your password is derived into an encryption key via **PBKDF2** (600,000 iterations)
+4. Your password is derived into an encryption key via **PBKDF2** (600,000 iterations, SHA-256)
 5. Your seed phrase is encrypted with **AES-256-GCM**
-6. The encrypted payload is encoded into a QR code
+6. The encrypted payload is encoded into a QR code (or hidden in an image)
 7. **Nothing is sent anywhere.** Zero network requests.
 
 ## Security
@@ -142,7 +166,7 @@ open index.html
 
 Or download `index.html` from the [latest release](https://github.com/lesagejeanno-cmd/seed-vault.io/releases) and open it in your browser.
 
-Or use it directly: **[lesagejeanno-cmd.github.io/seed-vault.io](https://lesagejeanno-cmd.github.io/seed-vault.io/)**
+Or use it directly: **[seed-vault.io](https://seed-vault.io)**
 
 ## Metal plates
 
@@ -153,6 +177,17 @@ SeedVault is free. If you want your encrypted QR code laser-engraved on stainles
 </p>
 
 Unlike plain-text metal plates, your SeedVault backup is **encrypted and fireproof** — finding the plate without the password reveals nothing.
+
+## Comparison
+
+| Method | Encrypted | Fireproof | Cloud-safe | Hidden |
+|--------|:---------:|:---------:|:----------:|:------:|
+| Paper (plain text) | ❌ | ❌ | ❌ | ❌ |
+| Metal plate (plain text) | ❌ | ✅ | ❌ | ❌ |
+| SeedVault QR code | ✅ | ✅* | ✅ | ❌ |
+| SeedVault steganography | ✅ | ✅* | ✅ | ✅ |
+
+\* When engraved on metal
 
 ## FAQ
 
@@ -167,6 +202,9 @@ Any wallet that uses BIP39 seed phrases (12 or 24 words). That's most wallets.
 
 **Is the QR code safe to store in the cloud?**
 Yes — the QR code contains AES-256 encrypted data. Without your password, it's random noise. You can safely store it in Google Drive, iCloud, email, etc.
+
+**Can I hide my seed phrase in a photo?**
+Yes — SeedVault's steganography feature embeds your encrypted seed phrase inside any image. The image looks completely unchanged. See [Steganography](#steganography) above.
 
 ## Audit this project
 
