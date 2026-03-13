@@ -2,7 +2,7 @@
   <img src="assets/metal.gif" alt="SeedVault encrypted QR code engraved on stainless steel" width="420">
 </p>
 
-<h1 align="center">SeedVault</h1>
+<h1 align="center">Seed-Vault.io</h1>
 
 <p align="center">
   <strong>Encrypt your crypto seed phrase into a QR code.</strong><br>
